@@ -8,8 +8,8 @@ const heebo = Heebo({
 });
 
 export const metadata: Metadata = {
-  title: "חיבורים — Chiburim",
-  description: "משחק חיבורים יומי בעברית — מצאו את ארבע הקבוצות!",
+  title: "חיבורים — משחק חיבורים יומי בעברית",
+  description: "משחק חיבורים יומי בעברית — מצאו את ארבע הקבוצות! בהשראת NYT Connections.",
 };
 
 export default function RootLayout({
