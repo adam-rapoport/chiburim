@@ -34,13 +34,38 @@ const NEW_PUZZLE = (): Puzzle => ({
   groups: DIFFICULTY_ORDER.map((d) => EMPTY_GROUP(d)),
 });
 
+function BlockedMessage() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+      <h1 className="text-2xl font-bold mb-2">ניהול חידות</h1>
+      <p className="text-gray-500">עמוד זה זמין רק במצב פיתוח מקומי</p>
+      <Link
+        href="/"
+        className="mt-6 px-5 py-2.5 rounded-full bg-[#5A594E] text-white text-sm font-medium
+          hover:bg-[#4A493E] transition-colors"
+      >
+        חזרה למשחק
+      </Link>
+    </div>
+  );
+}
+
 export default function AdminPage() {
+  const [isDev, setIsDev] = useState(false);
+  const [checked, setChecked] = useState(false);
   const [puzzles, setPuzzles] = useState<Puzzle[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPuzzle, setEditingPuzzle] = useState<Puzzle | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
+
+  // Check if running locally
+  useEffect(() => {
+    const host = window.location.hostname;
+    setIsDev(host === "localhost" || host === "127.0.0.1");
+    setChecked(true);
+  }, []);
 
   // Load all puzzles
   const loadPuzzles = useCallback(async () => {
@@ -61,8 +86,8 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    loadPuzzles();
-  }, [loadPuzzles]);
+    if (isDev) loadPuzzles();
+  }, [isDev, loadPuzzles]);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -158,6 +183,12 @@ export default function AdminPage() {
     });
     setEditingPuzzle(updated);
   };
+
+  // Show nothing while checking environment
+  if (!checked) return null;
+
+  // Block access in production
+  if (!isDev) return <BlockedMessage />;
 
   return (
     <div className="max-w-[700px] w-full mx-auto pb-12">
