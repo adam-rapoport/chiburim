@@ -1,7 +1,31 @@
 import { Puzzle } from "@/types";
 
-/** Hardcoded puzzle data as fallback — guarantees the game always loads */
-const PUZZLES: Puzzle[] = [
+/**
+ * Master list of all available puzzle dates, in chronological order.
+ * When adding new puzzles, add the date here AND put the JSON in public/puzzles/.
+ */
+export const ALL_PUZZLE_DATES: string[] = [
+  "2026-03-28",
+  "2026-03-29",
+  "2026-03-30",
+  "2026-03-31",
+  "2026-04-01",
+  "2026-04-02",
+  "2026-04-03",
+  "2026-04-04",
+  "2026-04-05",
+  "2026-04-06",
+  "2026-04-07",
+  "2026-04-08",
+  "2026-04-09",
+  "2026-04-10",
+  "2026-04-11",
+  "2026-04-12",
+  "2026-04-13",
+];
+
+/** Hardcoded fallback for the first 3 puzzles */
+const FALLBACK_PUZZLES: Puzzle[] = [
   {
     id: 1,
     date: "2026-03-28",
@@ -35,30 +59,38 @@ const PUZZLES: Puzzle[] = [
 ];
 
 /**
- * Get the puzzle for a given date.
- * First tries to fetch from /puzzles/ JSON files.
- * Falls back to hardcoded puzzles, cycling through them by date.
+ * Fetch a puzzle by date string.
+ * Tries static JSON first, then falls back to hardcoded data.
  */
 export async function fetchPuzzle(dateStr: string): Promise<Puzzle> {
-  // Try to fetch from static JSON first
+  // Try to fetch from static JSON
   try {
     const res = await fetch(`/puzzles/${dateStr}.json`);
     if (res.ok) {
       return await res.json();
     }
   } catch {
-    // Fall through to hardcoded data
+    // Fall through
   }
 
-  // Find exact date match in hardcoded data
-  const exact = PUZZLES.find((p) => p.date === dateStr);
-  if (exact) return exact;
+  // Fallback to hardcoded
+  const fallback = FALLBACK_PUZZLES.find((p) => p.date === dateStr);
+  if (fallback) return fallback;
 
-  // Cycle through puzzles based on day number
+  // Last resort: cycle through fallbacks
   const daysSinceEpoch = Math.floor(
     new Date(dateStr).getTime() / (1000 * 60 * 60 * 24)
   );
   const index =
-    ((daysSinceEpoch % PUZZLES.length) + PUZZLES.length) % PUZZLES.length;
-  return { ...PUZZLES[index], date: dateStr };
+    ((daysSinceEpoch % FALLBACK_PUZZLES.length) + FALLBACK_PUZZLES.length) %
+    FALLBACK_PUZZLES.length;
+  return { ...FALLBACK_PUZZLES[index], date: dateStr };
+}
+
+/**
+ * Get all puzzle dates that are in the past (available in archive).
+ * Compares against the given "today" date string.
+ */
+export function getArchiveDates(todayStr: string): string[] {
+  return ALL_PUZZLE_DATES.filter((d) => d <= todayStr);
 }
